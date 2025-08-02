@@ -1,39 +1,29 @@
-# Name of the workflow
 name: Deploy Flutter to GitHub Pages
 
-# Controls when the action will run.
-# This workflow runs on pushes to the 'main' branch.
 on:
   push:
-    branches: [ main ]
+    branches: [ main ] # This runs the action on every push to the main branch
 
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Check out the repository's code
       - uses: actions/checkout@v3
 
-      # Step 2: Set up the Flutter SDK
-      # Make sure to change the 'flutter-version' to the one you are using
+      # Make sure to change the flutter-version to the one you use
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.0' # 👈 **Important:** Change this to your Flutter version
+          flutter-version: '3.22.0' # 👈 Change to your Flutter version
           channel: 'stable'
 
-      # Step 3: Get Flutter dependencies
-      - name: Install dependencies
-        run: flutter pub get
-
-      # Step 4: Build the Flutter web app for deployment
-      # The --base-href flag is crucial for routing to work correctly on GitHub Pages
       - name: Build Web App
-        run: flutter build web --release --base-href /${{ github.event.repository.name }}/
+        run: |
+          flutter pub get
+          flutter build web --release --base-href /${{ github.event.repository.name }}/
 
-      # Step 5: Deploy the built app to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build/web # The folder where the web app is built
+          publish_dir: ./build/web
           
